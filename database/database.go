@@ -12,12 +12,20 @@ var DB *sql.DB
 
 func ConnectDB() {
 	// Connect to the database
-	db, err := sql.Open("postgres", "postgres://testuser:testpass@localhost/database?sslmode=disable")
+	var connStr string = fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		"localhost", "5432", "testuser", "testpass", "testdb")
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Check if the connection is successful
+	if err := db.Ping(); err != nil {
 		log.Fatal(err)
 	}
 
 	boil.SetDB(db)
 	DB = db
-	fmt.Println("Connected to database")
+	fmt.Println("🙆‍♂️ Connected to database")
 }
