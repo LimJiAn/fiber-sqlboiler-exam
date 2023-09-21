@@ -27,5 +27,5 @@ func ConnectDB() {
 
 	boil.SetDB(db)
 	DB = db
-	fmt.Println("🙆‍♂️ Connected to database")
+	fmt.Println("🙂 Connected to database")
 }
