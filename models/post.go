@@ -26,9 +26,10 @@ import (
 type Post struct {
 	ID        int         `boil:"id" json:"id" toml:"id" yaml:"id"`
 	Title     string      `boil:"title" json:"title" toml:"title" yaml:"title"`
-	Body      null.String `boil:"body" json:"body,omitempty" toml:"body" yaml:"body,omitempty"`
+	Content   null.String `boil:"content" json:"content,omitempty" toml:"content" yaml:"content,omitempty"`
 	CreatedAt null.Time   `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
-	AuthorID  int         `boil:"author_id" json:"author_id" toml:"author_id" yaml:"author_id"`
+	UpdatedAt null.Time   `boil:"updated_at" json:"updated_at,omitempty" toml:"updated_at" yaml:"updated_at,omitempty"`
+	Author    int         `boil:"author" json:"author" toml:"author" yaml:"author"`
 
 	R *postR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L postL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -37,29 +38,33 @@ type Post struct {
 var PostColumns = struct {
 	ID        string
 	Title     string
-	Body      string
+	Content   string
 	CreatedAt string
-	AuthorID  string
+	UpdatedAt string
+	Author    string
 }{
 	ID:        "id",
 	Title:     "title",
-	Body:      "body",
+	Content:   "content",
 	CreatedAt: "created_at",
-	AuthorID:  "author_id",
+	UpdatedAt: "updated_at",
+	Author:    "author",
 }
 
 var PostTableColumns = struct {
 	ID        string
 	Title     string
-	Body      string
+	Content   string
 	CreatedAt string
-	AuthorID  string
+	UpdatedAt string
+	Author    string
 }{
 	ID:        "post.id",
 	Title:     "post.title",
-	Body:      "post.body",
+	Content:   "post.content",
 	CreatedAt: "post.created_at",
-	AuthorID:  "post.author_id",
+	UpdatedAt: "post.updated_at",
+	Author:    "post.author",
 }
 
 // Generated where
@@ -141,27 +146,29 @@ func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsN
 var PostWhere = struct {
 	ID        whereHelperint
 	Title     whereHelperstring
-	Body      whereHelpernull_String
+	Content   whereHelpernull_String
 	CreatedAt whereHelpernull_Time
-	AuthorID  whereHelperint
+	UpdatedAt whereHelpernull_Time
+	Author    whereHelperint
 }{
 	ID:        whereHelperint{field: "\"post\".\"id\""},
 	Title:     whereHelperstring{field: "\"post\".\"title\""},
-	Body:      whereHelpernull_String{field: "\"post\".\"body\""},
+	Content:   whereHelpernull_String{field: "\"post\".\"content\""},
 	CreatedAt: whereHelpernull_Time{field: "\"post\".\"created_at\""},
-	AuthorID:  whereHelperint{field: "\"post\".\"author_id\""},
+	UpdatedAt: whereHelpernull_Time{field: "\"post\".\"updated_at\""},
+	Author:    whereHelperint{field: "\"post\".\"author\""},
 }
 
 // PostRels is where relationship names are stored.
 var PostRels = struct {
-	Author string
+	PostAuthor string
 }{
-	Author: "Author",
+	PostAuthor: "PostAuthor",
 }
 
 // postR is where relationships are stored.
 type postR struct {
-	Author *Author `boil:"Author" json:"Author" toml:"Author" yaml:"Author"`
+	PostAuthor *Author `boil:"PostAuthor" json:"PostAuthor" toml:"PostAuthor" yaml:"PostAuthor"`
 }
 
 // NewStruct creates a new relationship struct
@@ -169,20 +176,20 @@ func (*postR) NewStruct() *postR {
 	return &postR{}
 }
 
-func (r *postR) GetAuthor() *Author {
+func (r *postR) GetPostAuthor() *Author {
 	if r == nil {
 		return nil
 	}
-	return r.Author
+	return r.PostAuthor
 }
 
 // postL is where Load methods for each relationship are stored.
 type postL struct{}
 
 var (
-	postAllColumns            = []string{"id", "title", "body", "created_at", "author_id"}
-	postColumnsWithoutDefault = []string{"title", "author_id"}
-	postColumnsWithDefault    = []string{"id", "body", "created_at"}
+	postAllColumns            = []string{"id", "title", "content", "created_at", "updated_at", "author"}
+	postColumnsWithoutDefault = []string{"title", "author"}
+	postColumnsWithDefault    = []string{"id", "content", "created_at", "updated_at"}
 	postPrimaryKeyColumns     = []string{"id"}
 	postGeneratedColumns      = []string{}
 )
@@ -278,10 +285,10 @@ func (q postQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
-// Author pointed to by the foreign key.
-func (o *Post) Author(mods ...qm.QueryMod) authorQuery {
+// PostAuthor pointed to by the foreign key.
+func (o *Post) PostAuthor(mods ...qm.QueryMod) authorQuery {
 	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.AuthorID),
+		qm.Where("\"id\" = ?", o.Author),
 	}
 
 	queryMods = append(queryMods, mods...)
@@ -289,9 +296,9 @@ func (o *Post) Author(mods ...qm.QueryMod) authorQuery {
 	return Authors(queryMods...)
 }
 
-// LoadAuthor allows an eager lookup of values, cached into the
+// LoadPostAuthor allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
-func (postL) LoadAuthor(ctx context.Context, e boil.ContextExecutor, singular bool, maybePost interface{}, mods queries.Applicator) error {
+func (postL) LoadPostAuthor(ctx context.Context, e boil.ContextExecutor, singular bool, maybePost interface{}, mods queries.Applicator) error {
 	var slice []*Post
 	var object *Post
 
@@ -322,7 +329,7 @@ func (postL) LoadAuthor(ctx context.Context, e boil.ContextExecutor, singular bo
 		if object.R == nil {
 			object.R = &postR{}
 		}
-		args = append(args, object.AuthorID)
+		args = append(args, object.Author)
 
 	} else {
 	Outer:
@@ -332,12 +339,12 @@ func (postL) LoadAuthor(ctx context.Context, e boil.ContextExecutor, singular bo
 			}
 
 			for _, a := range args {
-				if a == obj.AuthorID {
+				if a == obj.Author {
 					continue Outer
 				}
 			}
 
-			args = append(args, obj.AuthorID)
+			args = append(args, obj.Author)
 
 		}
 	}
@@ -377,7 +384,7 @@ func (postL) LoadAuthor(ctx context.Context, e boil.ContextExecutor, singular bo
 
 	if singular {
 		foreign := resultSlice[0]
-		object.R.Author = foreign
+		object.R.PostAuthor = foreign
 		if foreign.R == nil {
 			foreign.R = &authorR{}
 		}
@@ -387,8 +394,8 @@ func (postL) LoadAuthor(ctx context.Context, e boil.ContextExecutor, singular bo
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if local.AuthorID == foreign.ID {
-				local.R.Author = foreign
+			if local.Author == foreign.ID {
+				local.R.PostAuthor = foreign
 				if foreign.R == nil {
 					foreign.R = &authorR{}
 				}
@@ -401,10 +408,10 @@ func (postL) LoadAuthor(ctx context.Context, e boil.ContextExecutor, singular bo
 	return nil
 }
 
-// SetAuthor of the post to the related item.
-// Sets o.R.Author to related.
+// SetPostAuthor of the post to the related item.
+// Sets o.R.PostAuthor to related.
 // Adds o to related.R.Posts.
-func (o *Post) SetAuthor(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Author) error {
+func (o *Post) SetPostAuthor(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Author) error {
 	var err error
 	if insert {
 		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
@@ -414,7 +421,7 @@ func (o *Post) SetAuthor(ctx context.Context, exec boil.ContextExecutor, insert 
 
 	updateQuery := fmt.Sprintf(
 		"UPDATE \"post\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"author_id"}),
+		strmangle.SetParamNames("\"", "\"", 1, []string{"author"}),
 		strmangle.WhereClause("\"", "\"", 2, postPrimaryKeyColumns),
 	)
 	values := []interface{}{related.ID, o.ID}
@@ -428,13 +435,13 @@ func (o *Post) SetAuthor(ctx context.Context, exec boil.ContextExecutor, insert 
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	o.AuthorID = related.ID
+	o.Author = related.ID
 	if o.R == nil {
 		o.R = &postR{
-			Author: related,
+			PostAuthor: related,
 		}
 	} else {
-		o.R.Author = related
+		o.R.PostAuthor = related
 	}
 
 	if related.R == nil {
@@ -498,6 +505,9 @@ func (o *Post) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 
 		if queries.MustTime(o.CreatedAt).IsZero() {
 			queries.SetScanner(&o.CreatedAt, currTime)
+		}
+		if queries.MustTime(o.UpdatedAt).IsZero() {
+			queries.SetScanner(&o.UpdatedAt, currTime)
 		}
 	}
 
@@ -571,6 +581,12 @@ func (o *Post) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *Post) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		queries.SetScanner(&o.UpdatedAt, currTime)
+	}
+
 	var err error
 	key := makeCacheKey(columns, nil)
 	postUpdateCacheMut.RLock()
@@ -704,6 +720,7 @@ func (o *Post) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 		if queries.MustTime(o.CreatedAt).IsZero() {
 			queries.SetScanner(&o.CreatedAt, currTime)
 		}
+		queries.SetScanner(&o.UpdatedAt, currTime)
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(postColumnsWithDefault, o)

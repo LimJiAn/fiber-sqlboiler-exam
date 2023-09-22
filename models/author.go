@@ -247,7 +247,7 @@ func (o *Author) Posts(mods ...qm.QueryMod) postQuery {
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"post\".\"author_id\"=?", o.ID),
+		qm.Where("\"post\".\"author\"=?", o.ID),
 	)
 
 	return Posts(queryMods...)
@@ -310,7 +310,7 @@ func (authorL) LoadPosts(ctx context.Context, e boil.ContextExecutor, singular b
 
 	query := NewQuery(
 		qm.From(`post`),
-		qm.WhereIn(`post.author_id in ?`, args...),
+		qm.WhereIn(`post.author in ?`, args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -339,19 +339,19 @@ func (authorL) LoadPosts(ctx context.Context, e boil.ContextExecutor, singular b
 			if foreign.R == nil {
 				foreign.R = &postR{}
 			}
-			foreign.R.Author = object
+			foreign.R.PostAuthor = object
 		}
 		return nil
 	}
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if local.ID == foreign.AuthorID {
+			if local.ID == foreign.Author {
 				local.R.Posts = append(local.R.Posts, foreign)
 				if foreign.R == nil {
 					foreign.R = &postR{}
 				}
-				foreign.R.Author = local
+				foreign.R.PostAuthor = local
 				break
 			}
 		}
@@ -363,19 +363,19 @@ func (authorL) LoadPosts(ctx context.Context, e boil.ContextExecutor, singular b
 // AddPosts adds the given related objects to the existing relationships
 // of the author, optionally inserting them as new records.
 // Appends related to o.R.Posts.
-// Sets related.R.Author appropriately.
+// Sets related.R.PostAuthor appropriately.
 func (o *Author) AddPosts(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Post) error {
 	var err error
 	for _, rel := range related {
 		if insert {
-			rel.AuthorID = o.ID
+			rel.Author = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
 				"UPDATE \"post\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"author_id"}),
+				strmangle.SetParamNames("\"", "\"", 1, []string{"author"}),
 				strmangle.WhereClause("\"", "\"", 2, postPrimaryKeyColumns),
 			)
 			values := []interface{}{o.ID, rel.ID}
@@ -389,7 +389,7 @@ func (o *Author) AddPosts(ctx context.Context, exec boil.ContextExecutor, insert
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			rel.AuthorID = o.ID
+			rel.Author = o.ID
 		}
 	}
 
@@ -404,10 +404,10 @@ func (o *Author) AddPosts(ctx context.Context, exec boil.ContextExecutor, insert
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &postR{
-				Author: o,
+				PostAuthor: o,
 			}
 		} else {
-			rel.R.Author = o
+			rel.R.PostAuthor = o
 		}
 	}
 	return nil
