@@ -69,7 +69,7 @@ y
 2023/09/21 20:00:00 Finished after 1.83152475s
 ```
 #### 4. Use sqlboiler
-###### 1. install
+###### 1. Install
 ```bash
 # Go 1.16 and above:
 $ go install github.com/volatiletech/sqlboiler/v4@latest
@@ -93,7 +93,7 @@ add-enum-types = true
   schema = "schema"
   blacklist = ["migrations", "other"]
 ```
-###### 3. Create model
+###### 3. Create models
 > ###### 🎯 After creating a configuration file that points at the database we want to generate models for, we can invoke the sqlboiler command line utility.
 ```bash
 $ sqlboiler psql
