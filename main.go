@@ -5,9 +5,9 @@ import (
 
 	"github.com/LimJiAn/go-sqlboiler-exam/api/route"
 	"github.com/LimJiAn/go-sqlboiler-exam/database"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 
 	"github.com/gofiber/fiber/v2"
-	_ "github.com/lib/pq"
 )
 
 func init() {
@@ -16,6 +16,8 @@ func init() {
 
 func main() {
 	app := fiber.New()
+	// logger
+	app.Use(logger.New())
 	route.SetupRoutes(app)
 
 	// Start the server
