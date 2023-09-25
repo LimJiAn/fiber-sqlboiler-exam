@@ -1,4 +1,4 @@
-module github.com/LimJiAn/go-sqlboiler-exam
+module github.com/LimJiAn/fiber-sqlboiler-exam
 
 go 1.20
 

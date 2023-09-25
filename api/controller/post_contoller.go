@@ -4,8 +4,8 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/LimJiAn/go-sqlboiler-exam/database"
-	"github.com/LimJiAn/go-sqlboiler-exam/models"
+	"github.com/LimJiAn/fiber-sqlboiler-exam/database"
+	"github.com/LimJiAn/fiber-sqlboiler-exam/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )

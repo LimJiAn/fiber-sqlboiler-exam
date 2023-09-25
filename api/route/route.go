@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/LimJiAn/go-sqlboiler-exam/api/controller"
+	"github.com/LimJiAn/fiber-sqlboiler-exam/api/controller"
 	"github.com/gofiber/fiber/v2"
 )
 
