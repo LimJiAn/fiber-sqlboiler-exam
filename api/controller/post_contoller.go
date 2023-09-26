@@ -4,8 +4,8 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/LimJiAn/fiber-sqlboiler-exam/database"
-	"github.com/LimJiAn/fiber-sqlboiler-exam/models"
+	"github.com/LimJiAn/fiber-sqlboiler-example/database"
+	"github.com/LimJiAn/fiber-sqlboiler-example/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
